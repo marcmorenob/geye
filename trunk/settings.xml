@@ -1,0 +1,7 @@
+<Gsettings>
+  <Calendar>
+   <Talarm>15</Talarm>
+   <Trefresh>60000</Trefresh>
+   <Tdays>31</Tdays>
+  </Calendar>
+</Gsettings>
