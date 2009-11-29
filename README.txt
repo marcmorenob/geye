@@ -1,39 +1,40 @@
-READMEv0.1
-
-Geye is a gnome top panel tool with a basic interaction with Google Calendar.
-Geye notifies new calendar events, X minutes before, inserts new events in 
-your Google calendars, list all events for each calendar and shows the time 
-for the next meeting.
+README
+Version: 0.2
 
 
-This program is free software: you can redistribute it and/or modify it under 
-the terms of the GNU General Public License version 3, as published by the Free 
-Software Foundation. 
- 
-This program is distributed in the hope that it will be useful, but 
+LICENSE
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 3, as published by the Free
+Software Foundation.
+
+This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
-SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-General Public License for more details. 
-  
-You should have received a copy of the GNU General  Public License 
-along with this program.  If not, see 
- <http://www.gnu.org/licenses/>.
+SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
 
+You should have received a copy of the GNU General  Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+ABOUT
+Geye is a Gnome top panel tool with a basic interaction with Google Calendar.
+Geye notifies new calendar events 'X' minutes before they happen, inserts new events
+in your Google calendars, list all events for each calendar, and shows the time
+for the next meeting.
 
 Geye is based on Gdata Python client library. For more information on the 
 GData Python client library, please see the project on code.google.com's hosting 
 service here: 
  http://code.google.com/p/gdata-python-client/
 
+For more information about Geye, please visit http://code.google.com/p/geye/
 
-For more informations about Geye, please visit http://code.google.com/p/geye/
 
+INTRODUCTION
+So you have decided to use Geye. Excellent choice! :)
+My aim with this short tutorial is to introduce you in using the
+Geye application for your Gnome Desktop.
 
-==Introduction==
-
-So you've decided to use Geye. Excellent choice! :)
-My aim with this short tutorial is to quickly get you started in using the
-Geye application for your gnome desktop.
 
 
 --Installing Python on Linux--
