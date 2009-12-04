@@ -21,6 +21,7 @@ except ImportError:
   from elementtree import ElementTree
 import gdata.calendar.service
 import gdata.service
+from gdata.service import BadAuthentication
 import atom.service
 import gdata.calendar
 import atom
@@ -29,6 +30,12 @@ import sys
 import string
 import time
 
+class Authentications_fail(Exception):
+  pass
+
+
+class Internet_connection_lost(Exception):
+  pass
 
 class Calendarapi:
 
@@ -38,11 +45,16 @@ class Calendarapi:
     self.cal_client.email = email
     self.cal_client.password = password
     self.cal_client.source = 'Google-Calendar_Python_Sample-1.0'
-    self.cal_client.ProgrammaticLogin() # Login on Google Calendar Server
-    self.alert_minuts=60*int(Talarm)
-    self.until_days=86400*int(Tdays)
-    self.Sicon=Sicon # Geye icon in top panel
-    pynotify.init("foo") 
+    try:
+     self.cal_client.ProgrammaticLogin() # Login on Google Calendar Server
+     self.alert_minuts=60*int(Talarm)
+     self.until_days=86400*int(Tdays)
+     self.Sicon=Sicon # Geye icon in top panel
+     pynotify.init("foo") 
+    except BadAuthentication:
+	raise Authentications_fail
+    except IOError:
+	raise Internet_connection_lost
     
   def _List_events(self):
 
@@ -60,7 +72,13 @@ class Calendarapi:
         vbox.show()
         treestore = gtk.TreeStore(str)
 	
-	feed = self.cal_client.GetAllCalendarsFeed() #Get all Calendar of the user
+	feed=0
+        try:
+	 feed = self.cal_client.GetAllCalendarsFeed() #Get all Calendar of the user
+	except IOError:
+	    raise Internet_connection_lost
+	    return 
+
 	for i, a_calendar in zip(xrange(len(feed.entry)), feed.entry):
 	 Gcal_name='%s' % (a_calendar.title.text,)
 	 piter = treestore.append(None, [Gcal_name])
@@ -115,7 +133,12 @@ class Calendarapi:
 	n.show()
 
   def _Find_alert(self): #Analise all events in all calendars looking for an event to notify
-	feed = self.cal_client.GetAllCalendarsFeed()
+	feed=0
+	try:
+	 feed = self.cal_client.GetAllCalendarsFeed()
+	except IOError:
+	    raise Internet_connection_lost
+	    return
 	for i, b_calendar in zip(xrange(len(feed.entry)), feed.entry):
 	 Gcal_name='%s' % (b_calendar.title.text,)
 	 gcal = '%s' % b_calendar.GetEditLink().href.split('/')[8]
@@ -155,7 +178,12 @@ class Calendarapi:
 	return True
   
   def _Find_calendars(self): #Find all my calendars
-	feed = self.cal_client.GetAllCalendarsFeed()
+	feed=0
+	try:
+	 feed = self.cal_client.GetAllCalendarsFeed()
+	except IOError:
+	    raise Internet_connection_lost
+	    return 
 	Gcal_name= list()
 	for i, b_calendar in zip(xrange(len(feed.entry)), feed.entry):
 	 Gcal_name.insert(i,b_calendar.title.text)
@@ -168,7 +196,11 @@ class Calendarapi:
     event.title = atom.Title(text=title)
     event.when.append(gdata.calendar.When(start_time,end_time))
     
-    feed = self.cal_client.GetAllCalendarsFeed() #Get all Calendar of the user
+    try:
+     feed = self.cal_client.GetAllCalendarsFeed() #Get all Calendar of the user
+    except IOError:
+      raise Internet_connection_lost
+      return 
     for i, a_calendar in zip(xrange(len(feed.entry)), feed.entry):
 	if(a_calendar.title.text == calendar ):
 	 gcal = '%s' % a_calendar.GetEditLink().href.split('/')[8]
