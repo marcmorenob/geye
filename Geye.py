@@ -15,6 +15,8 @@ import time
 
 # My class
 import Gapi
+from Gapi import Authentications_fail
+from Gapi import Internet_connection_lost
 import Gxml
 
 
@@ -108,20 +110,39 @@ class Geye:
         pwd = self.epwd.get_text()
 	#Connect to Google Calendar
 	try :
-	 self.window.hide()	 
 	 self.mycalendar = Gapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
 	 self.mycalendar._Find_alert()
-	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self.mycalendar._Find_alert)
-        except:
-	 self.werrorm()
+	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._Falert)
+	 self.window.hide()
+	 self.Sicon.set_blinking(False);
+        except Authentications_fail:
+	 self.werrorm("Incorrect user or password")
+	 self.window.show()
+        except Internet_connection_lost:
+	 self.Sicon.set_blinking(True);
+	 self.werrorm("No Internet connection")
 	 self.window.show()
 
+    def _Falert(self): # List all events for each calendar
+	try:	
+	 self.mycalendar._Find_alert()
+        except Internet_connection_lost:
+	 self.Sicon.set_blinking(True);
+	 self.Sicon.set_tooltip("No Internet connection")
+
     def _menuitem_List(self,widget): # List all events for each calendar
+	try:	
 	 self.mycalendar._List_events()
+        except Internet_connection_lost:
+	 self.werrorm("No Internet connection")
 
     def _intsert_event(self,widget,window):
-	window.destroy()
-	self.mycalendar._InsertEvent(self.combo.get_active_text(),self.title.get_text(),'%sT%s:00.000+01:00' %(self.sdate.get_text(),self.stime.get_text()),'%sT%s:00.000+01:00' %(self.edate.get_text(),self.etime.get_text()))
+	try:
+	 self.mycalendar._InsertEvent(self.combo.get_active_text(),self.title.get_text(),'%sT%s:00.000+01:00' %(self.sdate.get_text(),self.stime.get_text()),'%sT%s:00.000+01:00' %(self.edate.get_text(),self.etime.get_text()))
+	 window.destroy()
+        except Internet_connection_lost:
+	 self.werrorm("No Internet connection")
+	 return
 
 
     def _menuitem_Insert(self,widget): #Menu for insert new events in a selected calendar
@@ -147,7 +168,12 @@ class Geye:
 	label_1.show();
         self.combo = gtk.ComboBox()
         ls = gtk.ListStore(str)
-	feed = self.mycalendar._Find_calendars() #Find our calendars
+	feed=0
+	try:
+	 feed = self.mycalendar._Find_calendars() #Find our calendars
+        except Internet_connection_lost:
+	 self.werrorm("No Internet connection")
+	 return
 	for i in range(0,len(feed)):
            ls.append([feed[i]])
         self.combo.set_model(ls)
@@ -503,9 +529,9 @@ class Geye:
                 data.popup(None, None, None, 3, time)
         pass
 
-    def werrorm(self):
-	 self.errorm = gtk.MessageDialog(parent = self.window, buttons = gtk.BUTTONS_OK, flags = gtk.DIALOG_MODAL, type = gtk.MESSAGE_ERROR, message_format = "User or password incorrect")
-         self.errorm.set_title("Login Error")
+    def werrorm(self,mss):
+	 self.errorm = gtk.MessageDialog(parent = self.window, buttons = gtk.BUTTONS_OK, flags = gtk.DIALOG_MODAL, type = gtk.MESSAGE_ERROR, message_format = mss)
+         self.errorm.set_title("Geye Error")
          result = self.errorm.run()
          self.errorm.destroy()
 
