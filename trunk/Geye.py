@@ -111,29 +111,32 @@ class Geye:
 	#Connect to Google Calendar
 	try :
 	 self.mycalendar = Gapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
-	 self.mycalendar._Find_alert()
+	 self._Falert()
 	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._Falert)
 	 self.window.hide()
-	 self.Sicon.set_blinking(False);
         except Authentications_fail:
 	 self.werrorm("Incorrect user or password")
 	 self.window.show()
         except Internet_connection_lost:
-	 self.Sicon.set_blinking(True);
+	 self.Sicon.set_from_file("img/irisR.png");
+	 self.Sicon.set_tooltip("No Internet connection")
 	 self.werrorm("No Internet connection")
 	 self.window.show()
 
     def _Falert(self): # List all events for each calendar
 	try:	
 	 self.mycalendar._Find_alert()
+	 self.Sicon.set_from_file("img/iris.png");
         except Internet_connection_lost:
-	 self.Sicon.set_blinking(True);
+	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
 
     def _menuitem_List(self,widget): # List all events for each calendar
 	try:	
 	 self.mycalendar._List_events()
         except Internet_connection_lost:
+	 self.Sicon.set_from_file("img/irisR.png");
+	 self.Sicon.set_tooltip("No Internet connection")
 	 self.werrorm("No Internet connection")
 
     def _intsert_event(self,widget,window):
@@ -141,6 +144,8 @@ class Geye:
 	 self.mycalendar._InsertEvent(self.combo.get_active_text(),self.title.get_text(),'%sT%s:00.000+01:00' %(self.sdate.get_text(),self.stime.get_text()),'%sT%s:00.000+01:00' %(self.edate.get_text(),self.etime.get_text()))
 	 window.destroy()
         except Internet_connection_lost:
+	 self.Sicon.set_from_file("img/irisR.png");
+	 self.Sicon.set_tooltip("No Internet connection")
 	 self.werrorm("No Internet connection")
 	 return
 
@@ -172,6 +177,7 @@ class Geye:
 	try:
 	 feed = self.mycalendar._Find_calendars() #Find our calendars
         except Internet_connection_lost:
+	 self.Sicon.set_from_file("img/irisR.png");
 	 self.werrorm("No Internet connection")
 	 return
 	for i in range(0,len(feed)):
