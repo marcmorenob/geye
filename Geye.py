@@ -111,8 +111,8 @@ class Geye:
 	#Connect to Google Calendar
 	try :
 	 self.mycalendar = Gapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
-	 self._Falert()
-	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._Falert)
+	 self._falert()
+	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._falert)
 	 self.window.hide()
         except Authentications_fail:
 	 self.werrorm("Incorrect user or password")
@@ -123,7 +123,7 @@ class Geye:
 	 self.werrorm("No Internet connection")
 	 self.window.show()
 
-    def _Falert(self): # List all events for each calendar
+    def _falert(self): # List all events for each calendar
 	try:	
 	 self.mycalendar._Find_alert()
 	 self.Sicon.set_from_file("img/iris.png");
