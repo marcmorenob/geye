@@ -14,9 +14,9 @@ import pynotify
 import time
 
 # My class
-import Gapi
-from Gapi import Authentications_fail
-from Gapi import Internet_connection_lost
+import Gcalapi
+from Gcalapi import Authentications_fail
+from Gcalapi import Internet_connection_lost
 import Gxml
 
 
@@ -110,7 +110,7 @@ class Geye:
         pwd = self.epwd.get_text()
 	#Connect to Google Calendar
 	try :
-	 self.mycalendar = Gapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
+	 self.mycalendar = Gcalapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
 	 self._falert()
 	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._falert)
 	 self.window.hide()
