@@ -9,16 +9,15 @@ __author__ = 'moluxs@gmail.com (Marc Moreno)'
 import pygtk
 pygtk.require('2.0')
 import gtk
+import gtk.gdk
 import gobject
 import pynotify
 import time
 
 # My class
 import Gcalapi
-from Gcalapi import Authentications_fail
-from Gcalapi import Internet_connection_lost
+import Gmailapi
 import Gxml
-
 
 class Geye:
 
@@ -59,7 +58,7 @@ class Geye:
         vbox.pack_start(hbox1, True, True, 0)
         hbox1.show()
 
-	label1 = gtk.Label("   pwd:    ");
+	label1 = gtk.Label("   pwd:   ");
         hbox1.pack_start(label1, False, True, 0)
 	label1.show();
 
@@ -110,31 +109,44 @@ class Geye:
         pwd = self.epwd.get_text()
 	#Connect to Google Calendar
 	try :
+	 self.window.hide()
 	 self.mycalendar = Gcalapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
+	 self.mymail = Gmailapi.mailapi(usr,pwd)
 	 self._falert()
 	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._falert)
-	 self.window.hide()
-        except Authentications_fail:
+	 if(self.Gsettings.get_MEnable() == "1"):
+	  self._fmail()
+	  self.gtimer2=gobject.timeout_add(int(self.Gsettings.get_MTrefresh()),self._fmail)
+	 else:
+	  self.gtimer2=0
+        except Gcalapi.Authentications_fail:
 	 self.werrorm("Incorrect user or password")
 	 self.window.show()
-        except Internet_connection_lost:
+	except Gmailapi.Account_acces_fail as (Em):
+	 self.werrorm(Em.getMss())
+	 self.window.show()
+        except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
 	 self.werrorm("No Internet connection")
 	 self.window.show()
+    def _fmail(self): # List all events for each calendar
+	 self.mymail._find_newmail()
+	 return True
 
     def _falert(self): # List all events for each calendar
-	try:	
+	try:
 	 self.mycalendar._Find_alert()
 	 self.Sicon.set_from_file("img/iris.png");
-        except Internet_connection_lost:
+	 return True
+        except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
 
     def _menuitem_List(self,widget): # List all events for each calendar
 	try:	
 	 self.mycalendar._List_events()
-        except Internet_connection_lost:
+        except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
 	 self.werrorm("No Internet connection")
@@ -143,7 +155,7 @@ class Geye:
 	try:
 	 self.mycalendar._InsertEvent(self.combo.get_active_text(),self.title.get_text(),'%sT%s:00.000+01:00' %(self.sdate.get_text(),self.stime.get_text()),'%sT%s:00.000+01:00' %(self.edate.get_text(),self.etime.get_text()))
 	 window.destroy()
-        except Internet_connection_lost:
+        except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
 	 self.werrorm("No Internet connection")
@@ -176,7 +188,7 @@ class Geye:
 	feed=0
 	try:
 	 feed = self.mycalendar._Find_calendars() #Find our calendars
-        except Internet_connection_lost:
+        except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.werrorm("No Internet connection")
 	 return
@@ -316,17 +328,44 @@ class Geye:
 	 window.destroy()
 	 self.Gsettings.set_Talarm(self.Talarm.get_text())
 	 self.mycalendar.alert_minuts=60*int(self.Talarm.get_text())
-         if(self.Gsettings.get_Trefresh() != self.Trefresh.get_text()):
+        
+	 if(self.Gsettings.get_Trefresh() != self.Trefresh.get_text() and self.Trefresh.get_text() >= "30000"):
 	  self.Gsettings.set_Trefresh(self.Trefresh.get_text())
 	  gobject.source_remove(self.gtimer) # Remove previous time_out instance
-	  self.gtimer=gobject.timeout_add(int(self.Trefresh.get_text()),self.mycalendar._Find_alert)
+	  self.gtimer=gobject.timeout_add(int(self.Trefresh.get_text()),self._falert)
+	 if (self.Gsettings.get_MEnable() == "1"):
+          if(self.Gsettings.get_MTrefresh() != self.MTrefresh.get_text() and self.MTrefresh.get_text() >= "30000"):
+           self.Gsettings.set_MTrefresh(self.MTrefresh.get_text())
+
+	  if(self.gtimer2 == 0):
+	   self._fmail()
+	  else:
+	   gobject.source_remove(self.gtimer2) # Remove previous time_out instance
+	  
+          self.gtimer2=gobject.timeout_add(int(self.MTrefresh.get_text()),self._fmail)
+
+	 else:
+	   if(self.gtimer2 != 0):
+              gobject.source_remove(self.gtimer2) # Remove time_out instance for mail
+	      self.gtimer2=0
+
 	 self.Gsettings.set_Tdays(self.Tdays.get_text())
 	 self.until_days=86400*int(self.Tdays.get_text())
 	 self.Gsettings.save_config()
 
+    def _enable_mail(self,widget):
+	if(self.Gsettings.get_MEnable() == "1"):
+	  self.MTrefresh.set_editable(False)
+          self.MTrefresh.set_text("")
+	  self.Gsettings.set_MEnable("0")
+	else: 
+	  self.MTrefresh.set_editable(True)
+          self.MTrefresh.set_text(self.Gsettings.get_MTrefresh())
+	  self.Gsettings.set_MEnable("1")
+
     def	_menuitem_Configure(self,widget): #Settings menu
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.set_size_request(350, 200)
+        window.set_size_request(350, 300)
         window.set_title("Geye Settings")
 	window.set_icon_from_file("img/iris.png")
 	window.set_position(gtk.WIN_POS_CENTER)
@@ -381,18 +420,46 @@ class Geye:
 
 	label3 = gtk.Label(" Days");
         hbox2.pack_start(label3, False, True, 0)
-	label3.show();
+	label3.show()
 
         hbox3 = gtk.HBox(False, 0)
-        vbox.pack_start(hbox3, False, True, 0)
+        vbox.pack_start(hbox3, False, True, 10)
         hbox3.show()
+
+	c1 = gtk.CheckButton(label="Enable Gmail check")
+	c1.connect("clicked", self._enable_mail)
+        hbox3.pack_start(c1, False, True, 12)
+	c1.show()
+
+	hbox5 = gtk.HBox(False, 0)
+        vbox.pack_start(hbox5, False, True, 10)
+        hbox5.show()
+       
+	label3 = gtk.Label("    Recheck Gmail:  ");
+        hbox5.pack_start(label3, False, True, 0)
+	label3.show()
+
+        self.MTrefresh = gtk.Entry()
+        if(self.Gsettings.get_MEnable() == "1"):
+	  self.Gsettings.set_MEnable("0")
+ 	  c1.set_active(True) 
+	else:
+	  self.MTrefresh.set_editable(False)
+        self.MTrefresh.set_max_length(50)
+        hbox5.pack_start(self.MTrefresh, False, True, 0)
+        self.MTrefresh.show()
+
+        
+	hbox4 = gtk.HBox(False, 0)
+        vbox.pack_start(hbox4, False, True, 0)
+        hbox4.show()
 
         savebtn = gtk.Button("Save")
         savebtn.connect("clicked", self._save_Configure,window)
 	savebtn.set_border_width(10)
 	savebtn.set_size_request(80, 55);
 	savebtn.enter()
-        hbox3.pack_start(savebtn, True, True, 0)
+        hbox4.pack_start(savebtn, True, True, 0)
         savebtn.set_flags(gtk.CAN_DEFAULT)
         savebtn.grab_default()
         savebtn.show()
@@ -401,7 +468,7 @@ class Geye:
         closebtn.connect("clicked", lambda w: window.destroy())
 	closebtn.set_border_width(10)
 	closebtn.set_size_request(80, 55);
-        hbox3.pack_start(closebtn, True, True, 0)
+        hbox4.pack_start(closebtn, True, True, 0)
         closebtn.set_flags(gtk.CAN_DEFAULT)
         closebtn.grab_default()
         closebtn.show()
@@ -413,7 +480,11 @@ class Geye:
  	  self.window.show()
 
     def _halt_app(self,widget):
-	gobject.source_remove(self.gtimer) # Remove time_out instance
+	gobject.source_remove(self.gtimer) # Remove time_out instance for calendar
+	if(self.Gsettings.get_MEnable() == "1"):
+	 gobject.source_remove(self.gtimer2) # Remove time_out instance for mail
+	self.mymail._close()
+	self.mycalendar._close()
 	gtk.main_quit()
 
     def _license_win(self,widget): #License window
@@ -479,7 +550,7 @@ class Geye:
         vbox.pack_start(label0, False, True, 0)
 	label0.show()
 	label1 = gtk.Label()
-	label1.set_markup("Autor: Marc Moreno\n e-mail: moluxs@gmail.com")
+	label1.set_markup("Autor: Marc Moreno\ne-mail: moluxs@gmail.com")
         vbox.pack_start(label1, False, True, 0)
 	label1.show();
 	hbox=gtk.HBox()	
