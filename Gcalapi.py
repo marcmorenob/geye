@@ -33,7 +33,6 @@ import time
 class Authentications_fail(Exception):
   pass
 
-
 class Internet_connection_lost(Exception):
   pass
 
@@ -50,7 +49,8 @@ class Calendarapi:
      self.alert_minuts=60*int(Talarm)
      self.until_days=86400*int(Tdays)
      self.Sicon=Sicon # Geye icon in top panel
-     pynotify.init("foo") 
+     pynotify.init("Cal") 
+     self.no=0 #Calendar notify variable
     except BadAuthentication:
 	raise Authentications_fail
     except IOError:
@@ -128,9 +128,13 @@ class Calendarapi:
 
   def _User_notify(self,mss):
 	#Show notify message
-	n = pynotify.Notification("Calendar notify", mss)
-	n.set_timeout(5000)
-	n.show()
+	self.no = pynotify.Notification("Calendar notifier", mss)
+	self.no.set_timeout(5000)
+	self.no.show()
+
+  def _close(self):
+	if(self.no != 0):
+         self.no.close()
 
   def _Find_alert(self): #Analise all events in all calendars looking for an event to notify
 	feed=0
@@ -211,7 +215,6 @@ class Calendarapi:
     new_event = self.cal_client.InsertEvent(event, 
         '/calendar/feeds/%s/private/full' % gcal)
     
-
 
     
 

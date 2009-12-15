@@ -24,7 +24,9 @@ class Gxml:
   self.Talarm=self.Cal_instance.find("Talarm")
   self.Trefresh=self.Cal_instance.find("Trefresh")
   self.Tdays=self.Cal_instance.find("Tdays")
-  
+  self.Mail_instance=self.tree.getroot().find("Mail")
+  self.MEnable=self.Mail_instance.find("MEnable")
+  self.MTrefresh=self.Mail_instance.find("MTrefresh")
 
  def get_Talarm(self):
   return self.Talarm.text
@@ -43,6 +45,18 @@ class Gxml:
 
  def set_Trefresh(self,NewTrefresh):
   self.Trefresh.text=NewTrefresh
+
+ def set_MTrefresh(self,NewMTrefresh):
+  self.MTrefresh.text=NewMTrefresh
+
+ def get_MTrefresh(self):
+  return self.MTrefresh.text
+
+ def set_MEnable(self,NewMEnable):
+  self.MEnable.text=NewMEnable
+
+ def get_MEnable(self):
+  return self.MEnable.text
 
  def save_config(self):
   self.tree.write(self.xml_file)

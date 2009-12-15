@@ -4,4 +4,8 @@
    <Trefresh>60000</Trefresh>
    <Tdays>31</Tdays>
   </Calendar>
+  <Mail>
+   <MEnable>1</MEnable>
+   <MTrefresh>30000</MTrefresh>
+  </Mail>
 </Gsettings>
