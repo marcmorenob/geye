@@ -73,7 +73,7 @@ class Geye:
         hbox2.show()
 
         startbtn = gtk.Button("Start")
-        startbtn.connect("clicked", self.usrpwd_callback)
+        startbtn.connect("clicked", self.Usrpwd_callback)
 	startbtn.set_border_width(10)
 	startbtn.set_size_request(100, 70);
 	startbtn.enter()
@@ -93,16 +93,16 @@ class Geye:
 
 	#Create submenu rigth mouse button
         self.menu = gtk.Menu()
-        self.populate_menu()
+        self.Populate_menu()
         self.Sicon=gtk.status_icon_new_from_file("img/iris.png")
-	self.Sicon.connect("popup_menu", self.popup_menu_cb, self.menu)
+	self.Sicon.connect("popup_menu", self.Popup_menu_cb, self.menu)
 
 	self.menu = gtk.Menu()
 	self.window.set_focus(startbtn)
         self.window.show()
 
 
-    def usrpwd_callback(self,widget):
+    def Usrpwd_callback(self,widget):
 
         usr = self.eusr.get_text()
 	usr += "@gmail.com"
@@ -112,57 +112,57 @@ class Geye:
 	 self.window.hide()
 	 self.mycalendar = Gcalapi.Calendarapi(usr, pwd,self.Gsettings.get_Talarm(),self.Gsettings.get_Tdays(),self.Sicon)
 	 self.mymail = Gmailapi.mailapi(usr,pwd)
-	 self._falert()
-	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self._falert)
+	 self.Falert()
+	 self.gtimer=gobject.timeout_add(int(self.Gsettings.get_Trefresh()),self.Falert)
 	 if(self.Gsettings.get_MEnable() == "1"):
-	  self._fmail()
-	  self.gtimer2=gobject.timeout_add(int(self.Gsettings.get_MTrefresh()),self._fmail)
+	  self.Fmail()
+	  self.gtimer2=gobject.timeout_add(int(self.Gsettings.get_MTrefresh()),self.Fmail)
 	 else:
 	  self.gtimer2=0
         except Gcalapi.Authentications_fail:
-	 self.werrorm("Incorrect user or password")
+	 self.Werrorm("Incorrect user or password")
 	 self.window.show()
 	except Gmailapi.Account_acces_fail as (Em):
-	 self.werrorm(Em.getMss())
+	 self.Werrorm(Em.getMss())
 	 self.window.show()
         except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
-	 self.werrorm("No Internet connection")
+	 self.Werrorm("No Internet connection")
 	 self.window.show()
-    def _fmail(self): # List all events for each calendar
-	 self.mymail._find_newmail()
+    def Fmail(self): # List all events for each calendar
+	 self.mymail.Find_newmail()
 	 return True
 
-    def _falert(self): # List all events for each calendar
+    def Falert(self): # List all events for each calendar
 	try:
-	 self.mycalendar._Find_alert()
+	 self.mycalendar.Find_alert()
 	 self.Sicon.set_from_file("img/iris.png");
 	 return True
         except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
 
-    def _menuitem_List(self,widget): # List all events for each calendar
+    def Menuitem_List(self,widget): # List all events for each calendar
 	try:	
-	 self.mycalendar._List_events()
+	 self.mycalendar.List_events()
         except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
-	 self.werrorm("No Internet connection")
+	 self.Werrorm("No Internet connection")
 
-    def _intsert_event(self,widget,window):
+    def Intsert_event(self,widget,window):
 	try:
-	 self.mycalendar._InsertEvent(self.combo.get_active_text(),self.title.get_text(),'%sT%s:00.000+01:00' %(self.sdate.get_text(),self.stime.get_text()),'%sT%s:00.000+01:00' %(self.edate.get_text(),self.etime.get_text()))
+	 self.mycalendar.InsertEvent(self.combo.get_active_text(),self.title.get_text(),'%sT%s:00.000+01:00' %(self.sdate.get_text(),self.stime.get_text()),'%sT%s:00.000+01:00' %(self.edate.get_text(),self.etime.get_text()))
 	 window.destroy()
         except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
 	 self.Sicon.set_tooltip("No Internet connection")
-	 self.werrorm("No Internet connection")
+	 self.Werrorm("No Internet connection")
 	 return
 
 
-    def _menuitem_Insert(self,widget): #Menu for insert new events in a selected calendar
+    def Menuitem_Insert(self,widget): #Menu for insert new events in a selected calendar
 
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.set_size_request(350, 300)
@@ -187,10 +187,10 @@ class Geye:
         ls = gtk.ListStore(str)
 	feed=0
 	try:
-	 feed = self.mycalendar._Find_calendars() #Find our calendars
+	 feed = self.mycalendar.Find_calendars() #Find our calendars
         except Gcalapi.Internet_connection_lost:
 	 self.Sicon.set_from_file("img/irisR.png");
-	 self.werrorm("No Internet connection")
+	 self.Werrorm("No Internet connection")
 	 return
 	for i in range(0,len(feed)):
            ls.append([feed[i]])
@@ -301,7 +301,7 @@ class Geye:
         hbox5.show()
 
         savebtn = gtk.Button("Insert")
-        savebtn.connect("clicked", self._intsert_event,window)
+        savebtn.connect("clicked", self.Intsert_event,window)
 	savebtn.set_border_width(10)
 	savebtn.set_size_request(80, 55);
 	savebtn.enter()
@@ -324,7 +324,7 @@ class Geye:
 
 
 
-    def	_save_Configure(self,widget,window): #Apply and save new Geye settings
+    def	Save_Configure(self,widget,window): #Apply and save new Geye settings
 	 window.destroy()
 	 self.Gsettings.set_Talarm(self.Talarm.get_text())
 	 self.mycalendar.alert_minuts=60*int(self.Talarm.get_text())
@@ -332,17 +332,17 @@ class Geye:
 	 if(self.Gsettings.get_Trefresh() != self.Trefresh.get_text() and self.Trefresh.get_text() >= "30000"):
 	  self.Gsettings.set_Trefresh(self.Trefresh.get_text())
 	  gobject.source_remove(self.gtimer) # Remove previous time_out instance
-	  self.gtimer=gobject.timeout_add(int(self.Trefresh.get_text()),self._falert)
+	  self.gtimer=gobject.timeout_add(int(self.Trefresh.get_text()),self.Falert)
 	 if (self.Gsettings.get_MEnable() == "1"):
           if(self.Gsettings.get_MTrefresh() != self.MTrefresh.get_text() and self.MTrefresh.get_text() >= "30000"):
            self.Gsettings.set_MTrefresh(self.MTrefresh.get_text())
 
 	  if(self.gtimer2 == 0):
-	   self._fmail()
+	   self.Fmail()
 	  else:
 	   gobject.source_remove(self.gtimer2) # Remove previous time_out instance
 	  
-          self.gtimer2=gobject.timeout_add(int(self.MTrefresh.get_text()),self._fmail)
+          self.gtimer2=gobject.timeout_add(int(self.MTrefresh.get_text()),self.Fmail)
 
 	 else:
 	   if(self.gtimer2 != 0):
@@ -353,7 +353,7 @@ class Geye:
 	 self.until_days=86400*int(self.Tdays.get_text())
 	 self.Gsettings.save_config()
 
-    def _enable_mail(self,widget):
+    def Enable_mail(self,widget):
 	if(self.Gsettings.get_MEnable() == "1"):
 	  self.MTrefresh.set_editable(False)
           self.MTrefresh.set_text("")
@@ -363,7 +363,7 @@ class Geye:
           self.MTrefresh.set_text(self.Gsettings.get_MTrefresh())
 	  self.Gsettings.set_MEnable("1")
 
-    def	_menuitem_Configure(self,widget): #Settings menu
+    def	Menuitem_Configure(self,widget): #Settings menu
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.set_size_request(350, 300)
         window.set_title("Geye Settings")
@@ -427,7 +427,7 @@ class Geye:
         hbox3.show()
 
 	c1 = gtk.CheckButton(label="Enable Gmail check")
-	c1.connect("clicked", self._enable_mail)
+	c1.connect("clicked", self.Enable_mail)
         hbox3.pack_start(c1, False, True, 12)
 	c1.show()
 
@@ -455,7 +455,7 @@ class Geye:
         hbox4.show()
 
         savebtn = gtk.Button("Save")
-        savebtn.connect("clicked", self._save_Configure,window)
+        savebtn.connect("clicked", self.Save_Configure,window)
 	savebtn.set_border_width(10)
 	savebtn.set_size_request(80, 55);
 	savebtn.enter()
@@ -476,18 +476,18 @@ class Geye:
         window.show()
 
 
-    def _menuitem_Logout(self,widget):
+    def Menuitem_Logout(self,widget):
  	  self.window.show()
 
-    def _halt_app(self,widget):
+    def Halt_app(self,widget):
 	gobject.source_remove(self.gtimer) # Remove time_out instance for calendar
 	if(self.Gsettings.get_MEnable() == "1"):
 	 gobject.source_remove(self.gtimer2) # Remove time_out instance for mail
-	self.mymail._close()
-	self.mycalendar._close()
+	self.mymail.Close()
+	self.mycalendar.Close()
 	gtk.main_quit()
 
-    def _license_win(self,widget): #License window
+    def License_win(self,widget): #License window
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.set_size_request(375, 350)
         window.set_title("License Geye")
@@ -529,7 +529,7 @@ class Geye:
         window.add(vbox)
 	window.show_all()
 
-    def _menuitem_About(self,widget): # About window
+    def Menuitem_About(self,widget): # About window
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.set_size_request(250, 350)
         window.set_title("About Geye")
@@ -555,7 +555,7 @@ class Geye:
 	label1.show();
 	hbox=gtk.HBox()	
  	licensebtn = gtk.Button("License")
-        licensebtn.connect("clicked", self._license_win)
+        licensebtn.connect("clicked", self.License_win)
 	licensebtn.set_border_width(10)
 	licensebtn.set_size_request(80, 50);
         hbox.pack_start(licensebtn,False,True,0)
@@ -568,45 +568,45 @@ class Geye:
         window.add(vbox)
 	window.show_all()
 
-    def populate_menu(self): #popup menu. It will be shown when you press the right button
+    def Populate_menu(self): #popup menu. It will be shown when you press the right button
         mnuitem = gtk.ImageMenuItem("List Events")
-	mnuitem.connect("activate", self._menuitem_List)
+	mnuitem.connect("activate", self.Menuitem_List)
         self.menu.append(mnuitem)
 
         mnuitem = gtk.ImageMenuItem("Insert Event")
-	mnuitem.connect("activate", self._menuitem_Insert)
+	mnuitem.connect("activate", self.Menuitem_Insert)
         self.menu.append(mnuitem)
 
 	separator = gtk.SeparatorMenuItem()
         self.menu.append(separator)   
 	
 	mnuitem = gtk.ImageMenuItem("Configure")
-	mnuitem.connect("activate", self._menuitem_Configure)
+	mnuitem.connect("activate", self.Menuitem_Configure)
         self.menu.append(mnuitem)   
 
         mnuitem = gtk.ImageMenuItem("Logout")
-	mnuitem.connect("activate", self._menuitem_Logout)
+	mnuitem.connect("activate", self.Menuitem_Logout)
         self.menu.append(mnuitem)
  
         mnuitem = gtk.ImageMenuItem("Exit")
-	mnuitem.connect("activate", self._halt_app)
+	mnuitem.connect("activate", self.Halt_app)
         self.menu.append(mnuitem)
 
 	separator = gtk.SeparatorMenuItem()
         self.menu.append(separator)          
 
         mnuitem = gtk.ImageMenuItem("About Geye")
-	mnuitem.connect("activate", self._menuitem_About)
+	mnuitem.connect("activate", self.Menuitem_About)
         self.menu.append(mnuitem)
 
-    def popup_menu_cb(self, widget, button, time, data = None):
+    def Popup_menu_cb(self, widget, button, time, data = None):
         if button == 3:
             if data:
                 data.show_all()
                 data.popup(None, None, None, 3, time)
         pass
 
-    def werrorm(self,mss):
+    def Werrorm(self,mss):
 	 self.errorm = gtk.MessageDialog(parent = self.window, buttons = gtk.BUTTONS_OK, flags = gtk.DIALOG_MODAL, type = gtk.MESSAGE_ERROR, message_format = mss)
          self.errorm.set_title("Geye Error")
          result = self.errorm.run()

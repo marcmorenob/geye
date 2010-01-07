@@ -56,7 +56,7 @@ class Calendarapi:
     except IOError:
 	raise Internet_connection_lost
     
-  def _List_events(self):
+  def List_events(self):
 
 	# Window of List event
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -126,17 +126,17 @@ class Calendarapi:
         window.add(vbox)
 	window.show_all()
 
-  def _User_notify(self,mss):
+  def User_notify(self,mss):
 	#Show notify message
 	self.no = pynotify.Notification("Calendar notifier", mss)
 	self.no.set_timeout(5000)
 	self.no.show()
 
-  def _close(self):
+  def Close(self):
 	if(self.no != 0):
          self.no.close()
 
-  def _Find_alert(self): #Analise all events in all calendars looking for an event to notify
+  def Find_alert(self): #Analise all events in all calendars looking for an event to notify
 	feed=0
 	try:
 	 feed = self.cal_client.GetAllCalendarsFeed()
@@ -181,7 +181,7 @@ class Calendarapi:
 	self.Sicon.set_tooltip("Next Meeting\n-----------------------\n %s \n %s: %s " %(time.strftime('%H hours %M minutes', time.gmtime(nextmeeting_time-current)),nextmeeting_calendar,nextmeeting_event)) #The text is shown when you put your mouse over top-panel Geye icon
 	return True
   
-  def _Find_calendars(self): #Find all my calendars
+  def Find_calendars(self): #Find all my calendars
 	feed=0
 	try:
 	 feed = self.cal_client.GetAllCalendarsFeed()
@@ -193,7 +193,7 @@ class Calendarapi:
 	 Gcal_name.insert(i,b_calendar.title.text)
 	return Gcal_name
   
-  def _InsertEvent(self, calendar='Default', title='Event', 
+  def InsertEvent(self, calendar='Default', title='Event', 
       start_time=None, end_time=None,content=None, where=None,recurrence_data=None): #Insert event in one calendar
 
     event = gdata.calendar.CalendarEventEntry()
