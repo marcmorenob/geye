@@ -31,19 +31,19 @@ class mailapi:
     pynotify.init("Mail")
     self.p=0 #Mail notify variable
 
-  def _close(self):
+  def Close(self):
    self.IMAPlink.logout()
    if (self.p != 0):
     self.p.close()
 
-  def _user_notify(self,mss,Nmails):
+  def User_notify(self,mss,Nmails):
     #Show notify message
     print "%s new Mails -- Mail num: %s \n%s" %(Nmails,Nmails,mss)
     self.p = pynotify.Notification("Mail notifier", mss)
     self.p.set_timeout(5000)
     self.p.show()
 
-  def _find_newmail(self): #Analise all events in all calendars looking for an event to notify
+  def Find_newmail(self): #Analise all events in all calendars looking for an event to notify
      self.IMAPlink.check() #Check looking for new e-mails in the inbox
      (retcode, messages) = self.IMAPlink.search(None, '(UNSEEN)') 
      if retcode == 'OK' and messages != ['']: 
