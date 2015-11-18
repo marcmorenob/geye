@@ -1,0 +1,2 @@
+Geye is a gnome top panel tool with a basic interaction with Google Calendar and Gmail.
+<br>Geye notifies new calendar events, X minutes before, inserts new events in your Google calendars, list all events for each calendar and shows the time for the next meeting. <br>Geye can notify new e-mails in your inbox, if you wish.
